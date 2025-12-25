@@ -21,10 +21,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
-import { Loader, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import z from "zod";
 
 export default function Create() {
@@ -38,13 +37,16 @@ export default function Create() {
   const [isPending, startTransition] = useTransition();
   const mutation = useMutation(api.posts.createPost);
   const onSubmit = (data: z.infer<typeof postSchema>) => {
-    startTransition(() => {
-      mutation({
-        title: data.title,
-        content: data.content,
-      });
+    startTransition(async () => {
+      //Using the useMutation hook
+      // mutation({
+      //   title: data.title,
+      //   content: data.content,
+      // });
 
-      toast.success("Blog created successfully");
+      // Using the server actions
+      console.log("This is on server side");
+      await createBlogAction(data);
     });
   };
 
