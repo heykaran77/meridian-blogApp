@@ -1,8 +1,35 @@
+"use client";
 import { ThemeToggle } from "@/components/common/theme-toggle";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { useConvexAuth } from "convex/react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 export function Navbar() {
+  const { isLoading, isAuthenticated } = useConvexAuth();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Logout successful");
+            router.push("/");
+          },
+          onError: (error) => {
+            toast.error(error.error.message);
+          },
+        },
+      });
+    });
+  };
+
   return (
     <nav className="flex items-center justify-between w-full py-6">
       <div className="flex items-center gap-8">
@@ -22,14 +49,29 @@ export function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/auth/signup" className={buttonVariants()}>
-          Sign Up
-        </Link>
-        <Link
-          href="/auth/login"
-          className={buttonVariants({ variant: "outline" })}>
-          Login
-        </Link>
+        {isLoading ? null : isAuthenticated ? (
+          <Button onClick={handleLogout} disabled={isPending}>
+            {isPending ? (
+              <>
+                <Loader2 className="animate-spin size-4" />
+                <span>Logout</span>
+              </>
+            ) : (
+              <span>Logout</span>
+            )}
+          </Button>
+        ) : (
+          <>
+            <Link href="/auth/signup" className={buttonVariants()}>
+              Sign Up
+            </Link>
+            <Link
+              href="/auth/login"
+              className={buttonVariants({ variant: "outline" })}>
+              Login
+            </Link>
+          </>
+        )}
         <ThemeToggle />
       </div>
     </nav>

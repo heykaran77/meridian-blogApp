@@ -18,7 +18,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 export default function Signup() {
@@ -30,12 +34,25 @@ export default function Signup() {
       password: "",
     },
   });
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    await authClient.signUp.email({
-      email: data.email,
-      name: data.name,
-      password: data.password,
+  const onSubmit = (data: z.infer<typeof signUpSchema>) => {
+    startTransition(async () => {
+      await authClient.signUp.email({
+        email: data.email,
+        name: data.name,
+        password: data.password,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Sign-up successful");
+            router.push("/");
+          },
+          onError: (error) => {
+            toast.error(error.error.message);
+          },
+        },
+      });
     });
   };
   return (
@@ -46,7 +63,7 @@ export default function Signup() {
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup className="gap-y-6">
+          <FieldGroup className="gap-y-4">
             <Controller
               name="name"
               control={form.control}
@@ -88,6 +105,7 @@ export default function Signup() {
                 <Field>
                   <FieldLabel>Password</FieldLabel>
                   <Input
+                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="*****"
                     {...field}
@@ -98,7 +116,16 @@ export default function Signup() {
                 </Field>
               )}
             />
-            <Button>Sign Up</Button>
+            <Button disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="animate-spin size-4" />
+                  <span>Signing up...</span>
+                </>
+              ) : (
+                <span>SignUp</span>
+              )}
+            </Button>
           </FieldGroup>
         </form>
       </CardContent>
