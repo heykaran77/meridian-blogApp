@@ -1,5 +1,6 @@
 "use client";
 
+import { createBlogAction } from "@/app/actions";
 import { postSchema } from "@/app/schemas/blog";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,9 +18,14 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { error } from "console";
+import { useMutation } from "convex/react";
+import { Loader, Loader2 } from "lucide-react";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import z from "zod";
 
 export default function Create() {
   const form = useForm({
@@ -29,6 +35,19 @@ export default function Create() {
       content: "",
     },
   });
+  const [isPending, startTransition] = useTransition();
+  const mutation = useMutation(api.posts.createPost);
+  const onSubmit = (data: z.infer<typeof postSchema>) => {
+    startTransition(() => {
+      mutation({
+        title: data.title,
+        content: data.content,
+      });
+
+      toast.success("Blog created successfully");
+    });
+  };
+
   return (
     <div className="py-8">
       <div className=" text-center mb-4">
@@ -44,7 +63,7 @@ export default function Create() {
           <CardDescription>create a new blog article</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup className="gap-y-4">
               <Controller
                 name="title"
@@ -68,16 +87,25 @@ export default function Create() {
                   <Field>
                     <FieldLabel>Content</FieldLabel>
                     <Textarea
+                      rows={8}
                       aria-invalid={fieldState.invalid}
                       {...field}
-                      rows={20}
                       placeholder="your amazing blog content..."
                     />
                     <FieldError errors={[fieldState.error]} />
                   </Field>
                 )}
               />
-              <Button>Create Blog</Button>
+              <Button disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <span>Create Blog</span>
+                )}
+              </Button>
             </FieldGroup>
           </form>
         </CardContent>
