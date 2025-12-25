@@ -13,7 +13,6 @@ export async function createBlogAction(data: z.infer<typeof postSchema>) {
     throw new Error("Something went wrong");
   }
 
-  // TODO:  Mutation!!!
   await fetchAuthMutation(api.posts.createPost, {
     title: parsed.data.title,
     content: parsed.data.content,
