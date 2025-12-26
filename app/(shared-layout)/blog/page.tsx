@@ -1,16 +1,15 @@
-"use client";
-
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
+import { fetchAuthQuery } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
-import { useQuery } from "convex/react";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Blog() {
-  // fetching data on client side: TODO -> Fetch on the Server side
-  const data = useQuery(api.posts.getPosts);
+export default async function Blog() {
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  // Fetching data on server side, but non-reactive
+  const data = await fetchAuthQuery(api.posts.getPosts);
 
   return (
     <div className="py-6">
@@ -25,9 +24,9 @@ export default function Blog() {
 
       <div className="grid lg:grid-cols-3 gap-6 md:grid-cols-2">
         {data?.map((post) => (
-          <Link href={`/blog/${post._id}`} key={post._id}>
-            <Card className="p-3 cursor-pointer">
-              <div className="relative h-64 w-full overflow-hidden rounded-md outline-neutral-800 outline-1">
+          <Link href={`/blog/${post._id}`} key={post._id} className="h-full">
+            <Card className="p-3 cursor-pointer h-full flex flex-col">
+              <div className="relative h-64 w-full overflow-hidden rounded-md outline-neutral-800 outline-1 shrink-0">
                 <Image
                   src="https://4kwallpapers.com/images/walls/thumbs_3t/7730.jpg"
                   alt=""
@@ -35,12 +34,17 @@ export default function Blog() {
                   className="object-cover"
                 />
               </div>
-              <CardContent>
-                <h1 className="text-xl">{post.title}</h1>
-                <p className="text-sm line-clamp-2">{post.content}</p>
+              <CardContent className="flex-1 pt-4">
+                <h1 className="text-xl font-bold line-clamp-2 mb-2">
+                  {post.title}
+                </h1>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {post.content}
+                </p>
               </CardContent>
-              <CardFooter>
-                <Button className={cn("w-full", buttonVariants())}>
+              <CardFooter className="w-full pt-0">
+                <Button
+                  className={cn("w-full cursor-pointer", buttonVariants())}>
                   read more
                 </Button>
               </CardFooter>
