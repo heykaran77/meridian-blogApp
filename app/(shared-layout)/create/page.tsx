@@ -98,6 +98,24 @@ export default function Create() {
                   </Field>
                 )}
               />
+              <Controller
+                name="image"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Upload Thumbnail</FieldLabel>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        field.onChange(file);
+                      }}
+                    />
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
+              />
               <Button disabled={isPending}>
                 {isPending ? (
                   <>

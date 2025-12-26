@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         port: "",
       },
+      {
+        hostname: "mellow-gnat-788.convex.cloud",
+        protocol: "https",
+        port: "",
+      },
     ],
   },
 };

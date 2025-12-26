@@ -7,16 +7,43 @@ import { redirect } from "next/navigation";
 import z from "zod";
 
 export async function createBlogAction(data: z.infer<typeof postSchema>) {
-  const parsed = postSchema.safeParse(data);
+  try {
+    const parsed = postSchema.safeParse(data);
 
-  if (!parsed.success) {
-    throw new Error("Something went wrong");
+    if (!parsed.success) {
+      throw new Error("Something went wrong");
+    }
+
+    const imageURL = await fetchAuthMutation(
+      api.posts.generateImageUploadURL,
+      {}
+    );
+
+    const uploadResult = await fetch(imageURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": parsed.data.image.type,
+      },
+      body: parsed.data.image,
+    });
+
+    if (!uploadResult) {
+      return {
+        error: "Failed to uplaod image",
+      };
+    }
+    const { storageId } = await uploadResult.json();
+
+    await fetchAuthMutation(api.posts.createPost, {
+      title: parsed.data.title,
+      content: parsed.data.content,
+      imageStorageId: storageId,
+    });
+  } catch {
+    return {
+      error: "Failed to create post",
+    };
   }
 
-  await fetchAuthMutation(api.posts.createPost, {
-    title: parsed.data.title,
-    content: parsed.data.content,
-  });
-
-  redirect("/");
+  redirect("/blog");
 }
