@@ -8,6 +8,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
+export const dynamic = "force-static";
+export const revalidate = 30;
+
 export default async function Blog() {
   return (
     <div className="py-6">
@@ -33,9 +36,9 @@ async function LoadPost() {
   return (
     <div className="grid lg:grid-cols-3 gap-6 md:grid-cols-2">
       {data?.map((post) => (
-        <Link href={`/blog/${post._id}`} key={post._id} className="h-full">
+        <Link href={`/blog/${post._id}`} key={post._id} className="max-w-3xl">
           <Card className="p-3 cursor-pointer h-full flex flex-col">
-            <div className="relative h-64 w-full overflow-hidden rounded-md outline-neutral-800 outline-1 shrink-0">
+            <div className="relative h-64 w-full overflow-hidden rounded-md shrink-0">
               <Image
                 src={
                   post.imageUrl ??

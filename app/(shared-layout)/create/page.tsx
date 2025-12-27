@@ -18,9 +18,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "convex/react";
 import { Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -35,7 +33,7 @@ export default function Create() {
     },
   });
   const [isPending, startTransition] = useTransition();
-  const mutation = useMutation(api.posts.createPost);
+  // const mutation = useMutation(api.posts.createPost);
   const onSubmit = (data: z.infer<typeof postSchema>) => {
     startTransition(async () => {
       //Using the useMutation hook
@@ -45,7 +43,7 @@ export default function Create() {
       // });
 
       // Using the server actions
-      console.log("This is on server side");
+      // console.log("This is on server side");
       await createBlogAction(data);
     });
   };
