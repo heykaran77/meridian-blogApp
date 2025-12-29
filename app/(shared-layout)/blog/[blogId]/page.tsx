@@ -1,3 +1,4 @@
+import { CommentSection } from "@/components/common/commentSection";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
@@ -52,6 +53,9 @@ export default async function ({
         <p className="text-lg leading-relaxed text-foreground/90 whitespace-pre-wrap">
           {post.content}
         </p>
+
+        <Separator className="my-8" />
+        <CommentSection />
       </div>
     </div>
   );
