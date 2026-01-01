@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 export default function Create() {
@@ -44,7 +45,13 @@ export default function Create() {
 
       // Using the server actions
       // console.log("This is on server side");
-      await createBlogAction(data);
+
+      const result = await createBlogAction(data);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Blog post created!");
     });
   };
 

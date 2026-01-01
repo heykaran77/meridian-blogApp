@@ -6,8 +6,29 @@ import { Id } from "@/convex/_generated/dataModel";
 import { fetchAuthQuery } from "@/lib/auth-server";
 import { preloadQuery } from "convex/nextjs";
 import { ArrowLeftIcon } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ blogId: Id<"posts"> }>;
+}): Promise<Metadata> {
+  const { blogId } = await params;
+  const post = await fetchAuthQuery(api.posts.getPostById, { postId: blogId });
+
+  if (!post) {
+    return {
+      title: "Post Not Found",
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.content,
+  };
+}
 
 export default async function ({
   params,

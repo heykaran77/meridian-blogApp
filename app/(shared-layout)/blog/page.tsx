@@ -4,12 +4,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { fetchAuthQuery } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
 export const dynamic = "force-static";
 export const revalidate = 30;
+
+export const metadata: Metadata = {
+  title: "Meridian | Blogs",
+  category: "Web Development and tech",
+  authors: [{ name: "Karan Singh" }],
+  description: "Read our latest content about tech, web development, AI & ML & some cool tips and tricks"
+};
 
 export default async function Blog() {
   return (
