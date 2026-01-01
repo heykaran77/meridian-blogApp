@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { fetchAuthQuery } from "@/lib/auth-server";
+import { preloadQuery } from "convex/nextjs";
 import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,7 +15,12 @@ export default async function ({
   params: Promise<{ blogId: Id<"posts"> }>;
 }) {
   const { blogId } = await params;
-  const post = await fetchAuthQuery(api.posts.getPostById, { postId: blogId });
+  const [post, preloadedComments] = await Promise.all([
+    await fetchAuthQuery(api.posts.getPostById, { postId: blogId }),
+    await preloadQuery(api.comments.getCommentsByPost, {
+      postId: blogId,
+    }),
+  ]);
 
   if (!post) {
     return <h1 className="text-6xl font-extrabold">No post found</h1>;
@@ -55,7 +61,7 @@ export default async function ({
         </p>
 
         <Separator className="my-8" />
-        <CommentSection />
+        <CommentSection preloadedComments={preloadedComments} />
       </div>
     </div>
   );
