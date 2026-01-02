@@ -1,10 +1,11 @@
 import { CommentSection } from "@/components/common/commentSection";
+import { PostPresence } from "@/components/common/PostPresence";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { fetchAuthQuery } from "@/lib/auth-server";
-import { preloadQuery } from "convex/nextjs";
+import { getToken } from "@/lib/auth-server";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
 import { ArrowLeftIcon } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
@@ -16,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ blogId: Id<"posts"> }>;
 }): Promise<Metadata> {
   const { blogId } = await params;
-  const post = await fetchAuthQuery(api.posts.getPostById, { postId: blogId });
+  const post = await fetchQuery(api.posts.getPostById, { postId: blogId });
 
   if (!post) {
     return {
@@ -36,11 +37,13 @@ export default async function ({
   params: Promise<{ blogId: Id<"posts"> }>;
 }) {
   const { blogId } = await params;
-  const [post, preloadedComments] = await Promise.all([
-    await fetchAuthQuery(api.posts.getPostById, { postId: blogId }),
+  const token = await getToken();
+  const [post, preloadedComments, userId] = await Promise.all([
+    await fetchQuery(api.posts.getPostById, { postId: blogId }),
     await preloadQuery(api.comments.getCommentsByPost, {
       postId: blogId,
     }),
+    await fetchQuery(api.presence.getUserId, {}, { token }),
   ]);
 
   if (!post) {
@@ -72,9 +75,13 @@ export default async function ({
           <h1 className="text-4xl font-extrabold tracking-tight">
             {post.title}
           </h1>
-          <span className="text-sm text-muted-foreground">
-            Posted on: {new Date(post._creationTime).toLocaleDateString()}
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Posted on: {new Date(post._creationTime).toLocaleDateString()}
+            </span>
+            {userId && <PostPresence roomId={post._id} userId={userId} />}
+          </div>
+
           <Separator className="my-4" />
         </div>
         <p className="text-lg leading-relaxed text-foreground/90 whitespace-pre-wrap">
