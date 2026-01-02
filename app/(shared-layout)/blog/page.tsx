@@ -2,8 +2,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
-import { fetchAuthQuery } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
+import { fetchQuery } from "convex/nextjs";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   title: "Meridian | Blogs",
   category: "Web Development and tech",
   authors: [{ name: "Karan Singh" }],
-  description: "Read our latest content about tech, web development, AI & ML & some cool tips and tricks"
+  description:
+    "Read our latest content about tech, web development, AI & ML & some cool tips and tricks",
 };
 
 export default async function Blog() {
@@ -39,7 +40,7 @@ export default async function Blog() {
 
 async function LoadPost() {
   // Fetching data on server side, but non-reactive
-  const data = await fetchAuthQuery(api.posts.getPosts);
+  const data = await fetchQuery(api.posts.getPosts);
 
   return (
     <div className="grid lg:grid-cols-3 gap-6 md:grid-cols-2">
