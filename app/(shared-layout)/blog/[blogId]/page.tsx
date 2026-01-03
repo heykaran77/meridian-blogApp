@@ -10,6 +10,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -45,6 +46,10 @@ export default async function ({
     }),
     await fetchQuery(api.presence.getUserId, {}, { token }),
   ]);
+
+  if(!userId){
+    return redirect("/auth/login")
+  }
 
   if (!post) {
     return <h1 className="text-6xl font-extrabold">No post found</h1>;
