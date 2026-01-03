@@ -47,8 +47,8 @@ export default async function ({
     await fetchQuery(api.presence.getUserId, {}, { token }),
   ]);
 
-  if(!userId){
-    return redirect("/auth/login")
+  if (!userId) {
+    return redirect("/auth/login");
   }
 
   if (!post) {
